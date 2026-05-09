@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class LicenseGroup : IEntity
+public class Group : IEntity
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -12,9 +12,9 @@ public class LicenseGroup : IEntity
     public uint Version { get; set; }
 }
 
-public class LicenseGroupTypeConfiguration : IEntityTypeConfiguration<LicenseGroup>
+public class LicenseGroupTypeConfiguration : IEntityTypeConfiguration<Group>
 {
-    public void Configure(EntityTypeBuilder<LicenseGroup> builder)
+    public void Configure(EntityTypeBuilder<Group> builder)
     {
         builder.HasKey(b => new { b.Id });
 

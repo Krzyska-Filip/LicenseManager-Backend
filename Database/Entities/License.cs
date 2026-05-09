@@ -6,8 +6,8 @@ public class License : IEntity
 {
     public int Id { get; set; }
 
-    public int LicenseGroupId { get; set; }
-    public LicenseGroup LicenseGroup { get; set; }
+    public int GroupId { get; set; }
+    public Group Group { get; set; }
 
     public int? PreviousId { get; set; }
     public License? Previous { get; set; }
@@ -35,9 +35,9 @@ public class LicenseTypeConfiguration : IEntityTypeConfiguration<License>
             .ValueGeneratedOnAdd();
 
         builder
-            .HasOne(b => b.LicenseGroup)
+            .HasOne(b => b.Group)
             .WithMany()
-            .HasForeignKey(b => new { b.LicenseGroupId })
+            .HasForeignKey(b => new { b.GroupId })
             .OnDelete(DeleteBehavior.SetNull);
 
         builder

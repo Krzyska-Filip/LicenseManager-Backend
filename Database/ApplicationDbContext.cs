@@ -6,7 +6,7 @@ namespace Licenses.Database;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
-    public DbSet<LicenseGroup> LicenseGroups { get; set; }
+    public DbSet<Group> Groups { get; set; }
     public DbSet<License> Licenses { get; set; }
     public DbSet<Seat> Seats { get; set; }
 

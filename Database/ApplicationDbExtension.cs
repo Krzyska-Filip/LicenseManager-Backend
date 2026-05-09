@@ -41,7 +41,7 @@ public static class ApplicationDbExtension
         ");
         
         new UserSeeder().Seed(db);
-        new LicenseGroupSeeder().Seed(db);
+        new GroupSeeder().Seed(db);
         new LicenseSeeder().Seed(db);
         new SeatSeeder().Seed(db);
         db.SaveChanges();

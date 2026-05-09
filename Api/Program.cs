@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Identity.Web;
+using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,15 @@ builder.Services.RegisterDatabase(builder.Configuration);
 
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
+
+/* ODATA */
+
+var modelBuilder = new ODataConventionModelBuilder();
+modelBuilder.EntitySet<License>("Licenses");
+modelBuilder.EntitySet<User>("Users");
+modelBuilder.EntitySet<Seat>("Seats");
+modelBuilder.EntitySet<Group>("Groups");
+
 builder.Services.AddControllers()
     .AddOData(opt => opt
         .Filter()
