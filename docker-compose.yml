@@ -7,7 +7,8 @@
       context: .
       dockerfile: Api/Dockerfile
     environment:
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=licenses;Username=licenses;Password=changeme"
+      ConnectionStrings__DefaultConnection: "Host=database-local;Port=5432;Database=licenses;Username=licenses;Password=changeme"
+      ASPNETCORE_ENVIRONMENT: Development
     depends_on:
       database-local:
         condition: service_healthy
