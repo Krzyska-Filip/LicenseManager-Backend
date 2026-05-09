@@ -8,7 +8,7 @@ public static class ApplicationDbExtension
 {
     public static void RegisterDatabase(this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString("LicensesDatabaseConnection");
+        var connectionString = config.GetConnectionString("DefaultConnection");
 
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("Connection string not found.");
