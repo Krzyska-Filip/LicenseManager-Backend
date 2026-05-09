@@ -8,9 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterDatabase(builder.Configuration);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
-
 builder.Services.AddOpenApi();
 builder.Services.AddControllers()
     .AddOData(opt => opt
