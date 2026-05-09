@@ -26,7 +26,7 @@ public class LicenseGroupTypeConfiguration : IEntityTypeConfiguration<Group>
             .HasOne(b => b.Maintainer)
             .WithMany()
             .HasForeignKey(b => new { b.MaintainerId })
-            .OnDelete(DeleteBehavior.ClientSetNull);
+            .OnDelete(DeleteBehavior.SetNull);
         
         builder.Property(b => b.Version)
             .HasColumnName("xmin")

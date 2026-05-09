@@ -38,7 +38,7 @@ public class LicenseTypeConfiguration : IEntityTypeConfiguration<License>
             .HasOne(b => b.Group)
             .WithMany()
             .HasForeignKey(b => new { b.GroupId })
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder
             .HasOne(b => b.Previous)
