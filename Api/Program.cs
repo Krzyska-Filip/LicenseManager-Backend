@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.RegisterDatabase(builder.Configuration);
 
 builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 builder.Services.AddControllers()
     .AddOData(opt => opt
         .Filter()
@@ -33,6 +34,8 @@ if (app.Environment.IsDevelopment())
 {
     app.Services.SeedDatabase();
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseCors("CorsPolicy");
