@@ -1,0 +1,27 @@
+﻿services:
+  api:
+    image: api
+    ports:
+      - 8080:8080
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=licenses;Username=licenses;Password=changeme"
+    depends_on:
+      database-local:
+        condition: service_healthy
+
+  database-local:
+    image: postgres:17-alpine
+    ports:
+      - 5555:5432
+    environment:
+      POSTGRES_USER: licenses
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: licenses
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U licenses" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
