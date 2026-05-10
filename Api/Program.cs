@@ -26,6 +26,7 @@ var groups = modelBuilder.EntitySet<Group>("Groups");
 var costs = modelBuilder.EntitySet<LicenseCostDto>("LicenseCosts");
 licenses.EntityType.Function("Cost").Returns<LicenseCostDto>();
 licenses.EntityType.Collection.Function("Cost").ReturnsCollection<LicenseCostDto>();
+licenses.EntityType.Function("History").ReturnsCollection<License>();
 
 builder.Services.AddControllers()
     .AddOData(opt => opt
