@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Api.Controllers;
 
-public class LicensesController(ApplicationDbContext context) : ODataController
+public partial class LicensesController(ApplicationDbContext context) : ODataController
 {
     [EnableQuery(PageSize=5)]
     public IActionResult Get()
