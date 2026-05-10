@@ -26,6 +26,7 @@ builder.Services.AddControllers()
         .OrderBy()
         .Count()
         .Select()
+        .Expand()
         .SetMaxTop(10)
     );
 
