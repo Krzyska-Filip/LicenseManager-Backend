@@ -3,6 +3,7 @@ using Licenses.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,12 +20,17 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
     [EnableQuery]
     public IActionResult Get([FromRoute] int key)
     {
-        var entity = context.Licenses.FirstOrDefault(x => x.Id == key);
+        var entity = context.Licenses.Where(x => x.Id == key);
+        
+        var etag = Request.Headers.IfNoneMatch.FirstOrDefault();
+        if (etag is not null)
+        {
+            var version = entity.Select(x => x.Version).First();
+            if (etag == version.ToString())
+                return StatusCode(304);
+        }
 
-        if (entity == null)
-            return NotFound();
-
-        return Ok(entity);
+        return Ok(SingleResult.Create(entity));
     }
     
     public async Task<IActionResult> Post([FromBody] NewLicenseRequest request)
@@ -85,10 +91,17 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
     
     public async Task<IActionResult> Patch([FromRoute] int key, [FromBody] Delta<License> delta)
     {
+        var ifMatch = Request.Headers.IfMatch.FirstOrDefault();
+        if (string.IsNullOrEmpty(ifMatch))
+            return StatusCode(StatusCodes.Status428PreconditionRequired);
+        
         var entity = await context.Licenses.FindAsync(key);
-
+        
         if (entity == null)
             return NotFound();
+        
+        if (ifMatch != entity.Version.ToString())
+            return StatusCode(StatusCodes.Status412PreconditionFailed);
 
         delta.Patch(entity);
 

@@ -3,6 +3,7 @@ using Licenses.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Api.Controllers;
@@ -18,12 +19,9 @@ public class GroupsController(ApplicationDbContext context) : ODataController
     [EnableQuery]
     public IActionResult Get([FromRoute] int key)
     {
-        var entity = context.Groups.FirstOrDefault(x => x.Id == key);
+        var entity = context.Groups.Where(x => x.Id == key);
 
-        if (entity == null)
-            return NotFound();
-
-        return Ok(entity);
+        return Ok(SingleResult.Create(entity));
     }
     
     public async Task<IActionResult> Post([FromBody] NewGroupRequests request)

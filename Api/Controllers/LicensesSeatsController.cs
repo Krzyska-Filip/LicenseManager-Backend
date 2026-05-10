@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ public partial class LicensesController : ODataController
         var seats = context.Seats
             .Where(s => s.LicenseId == key && s.Id == relatedKey);
 
-        return Ok(seats);
+        return Ok(SingleResult.Create(seats));
     }
     
     [HttpPost("odata/Licenses({key})/Seats")]
