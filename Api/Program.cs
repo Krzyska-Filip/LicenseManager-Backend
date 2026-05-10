@@ -1,5 +1,6 @@
 using Api.Services;
 using Licenses.Database;
+using Licenses.Database.Dto;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
@@ -17,10 +18,13 @@ builder.Services.AddMemoryCache();
 /* ODATA */
 
 var modelBuilder = new ODataConventionModelBuilder();
-modelBuilder.EntitySet<License>("Licenses");
-modelBuilder.EntitySet<User>("Users");
-modelBuilder.EntitySet<Seat>("Seats");
-modelBuilder.EntitySet<Group>("Groups");
+var licenses = modelBuilder.EntitySet<License>("Licenses");
+var users = modelBuilder.EntitySet<User>("Users");
+var seats= modelBuilder.EntitySet<Seat>("Seats");
+var groups = modelBuilder.EntitySet<Group>("Groups");
+var costs = modelBuilder.EntitySet<LicenseCostDto>("LicenseCosts");
+licenses.EntityType.Function("Cost").Returns<LicenseCostDto>();
+licenses.EntityType.Collection.Function("Cost").ReturnsCollection<LicenseCostDto>();
 
 builder.Services.AddControllers()
     .AddOData(opt => opt

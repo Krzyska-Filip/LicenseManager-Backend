@@ -1,4 +1,5 @@
-﻿using Licenses.Database.Entities;
+﻿using Licenses.Database.Dto;
+using Licenses.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Licenses.Database;
@@ -9,6 +10,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Group> Groups { get; set; }
     public DbSet<License> Licenses { get; set; }
     public DbSet<Seat> Seats { get; set; }
+    
+    public DbSet<LicenseCostDto> LicenseCosts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
