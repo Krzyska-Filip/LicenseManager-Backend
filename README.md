@@ -1,37 +1,37 @@
 # LicenseManager
 
-## Struktura projektu
+## Project Structure
 
 ```
 /
-├── Api/                  # Warstwa HTTP (kontrolery, filtry, żądania)
+├── Api/                  # HTTP layer (controllers, filters, requests)
 │   ├── Controllers/      # OData controllers (Users, Groups, Licenses, Seats)
 │   ├── Filters/          # Swashbuckle document filters
-│   └── Requests/         # Request modele (NewXRequest)
-├── Database/             # Warstwa danych
-│   ├── Entities/         # Encje EF Core z konfiguracją (IEntityTypeConfiguration)
-│   ├── Migrations/       # Migracje EF Core
-│   └── Seeders/V1/       # Dane testowe (10 użytkowników, grupy, licencje, stanowiska)
+│   └── Requests/         # Request models (NewXRequest)
+├── Database/             # Data layer
+│   ├── Entities/         # EF Core entities with configuration (IEntityTypeConfiguration)
+│   ├── Migrations/       # EF Core migrations
+│   └── Seeders/V1/       # Seed data (10 users, groups, licenses, seats)
 └── docker-compose.yml    # API + PostgreSQL 17
 ```
 
-## Uruchamianie
+## Running
 
 ```bash
 docker-compose up --build
 ```
 
-API dostępne pod: `http://localhost:8080`
+API available at: `http://localhost:8080`
 
-Połączenie z bazą konfigurowane przez zmienną środowiskową:
+Database connection is configured via environment variable:
 
 ```
 ConnectionStrings__DefaultConnection=Host=database-local;Port=5432;Database=licenses;Username=licenses;Password=changeme
 ```
 
-## Migracje
+## Migrations
 
 ```bash
-dotnet ef migrations add <NazwaMigracji> --project Database --startup-project Api
+dotnet ef migrations add <MigrationName> --project Database --startup-project Api
 dotnet ef database update --project Database --startup-project Api
 ```
