@@ -1,4 +1,7 @@
-﻿using Api.Requests;
+﻿using System.Net;
+using System.Text.Json;
+using Api.Requests;
+using Api.Services;
 using Licenses.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
@@ -9,18 +12,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
-public partial class LicensesController(ApplicationDbContext context) : ODataController
+public partial class LicensesController : ODataController
 {
+    private readonly ApplicationDbContext _context;
+    private readonly IIdempotencyKeyService _idempotency;
+
+    public LicensesController(ApplicationDbContext context, IIdempotencyKeyService idempotency)
+    {
+        _context = context;
+        _idempotency = idempotency;
+    }
+
+
     [EnableQuery(PageSize=5)]
     public IActionResult Get()
     {
-        return Ok(context.Licenses);
+        return Ok(_context.Licenses);
     }
     
     [EnableQuery]
     public IActionResult Get([FromRoute] int key)
     {
-        var entity = context.Licenses.Where(x => x.Id == key);
+        var entity = _context.Licenses.Where(x => x.Id == key);
         
         var etag = Request.Headers.IfNoneMatch.FirstOrDefault();
         if (etag is not null)
@@ -35,6 +48,18 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
     
     public async Task<IActionResult> Post([FromBody] NewLicenseRequest request)
     {
+        var idempotencyKeyHeader = Request.Headers["Idempotency-Key"].FirstOrDefault();
+        if (String.IsNullOrEmpty(idempotencyKeyHeader))
+        {
+            return BadRequest("Idempotency-Key Required");
+        }
+        
+        var idempotencyKey = _idempotency.Get(idempotencyKeyHeader);
+        if (idempotencyKey is not null)
+        {
+            return idempotencyKey.Response;
+        }
+        
         var entity = new License
         {
             GroupId = request.GroupId,
@@ -47,7 +72,7 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
             ValidTo = request.ValidTo,
         };
         
-        await using var transaction = await context.Database.BeginTransactionAsync();
+        await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             if (request.PreviousId is not null)
@@ -59,20 +84,20 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
                     return renewalStatus;
                 }
             }
-            
-            context.Licenses.Add(entity);
-            await context.SaveChangesAsync();
+
+            _context.Licenses.Add(entity);
+            await _context.SaveChangesAsync();
 
             if (request.Seats > 0)
             {
-                var seats = request.PreviousId is not null ?
-                    await CloneSeats(request.PreviousId, entity.Id, request.Seats, request.ValidFrom) :
-                    CreateSeats(entity.Id, request.Seats, request.ValidFrom);
-                
-                await context.Seats.AddRangeAsync(seats);
-                await context.SaveChangesAsync();
+                var seats = request.PreviousId is not null
+                    ? await CloneSeats(request.PreviousId, entity.Id, request.Seats, request.ValidFrom)
+                    : CreateSeats(entity.Id, request.Seats, request.ValidFrom);
+
+                await _context.Seats.AddRangeAsync(seats);
+                await _context.SaveChangesAsync();
             }
-            
+
             await transaction.CommitAsync();
         }
         catch (DbUpdateConcurrencyException)
@@ -85,6 +110,14 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
             await transaction.RollbackAsync();
             throw;
         }
+        
+        _idempotency.Set(
+            idempotencyKeyHeader,
+            new IdempotencyBody
+            {
+                Response = Created(entity),
+                CreatedAt = DateTime.UtcNow
+            });
 
         return Created(entity);
     }
@@ -95,7 +128,7 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
         if (string.IsNullOrEmpty(ifMatch))
             return StatusCode(StatusCodes.Status428PreconditionRequired);
         
-        var entity = await context.Licenses.FindAsync(key);
+        var entity = await _context.Licenses.FindAsync(key);
         
         if (entity == null)
             return NotFound();
@@ -105,27 +138,27 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
 
         delta.Patch(entity);
 
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return Updated(entity);
     }
     
     public async Task<IActionResult> Delete([FromRoute] int key)
     {
-        var entity = await context.Licenses.FindAsync(key);
+        var entity = await _context.Licenses.FindAsync(key);
 
         if (entity == null)
             return NotFound();
 
-        context.Licenses.Remove(entity);
-        await context.SaveChangesAsync();
+        _context.Licenses.Remove(entity);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
     private async Task<IActionResult> HandleRenewal(int? previousId)
     {
-        var previousLicense = await context.Licenses.FindAsync(previousId);
+        var previousLicense = await _context.Licenses.FindAsync(previousId);
 
         if (previousLicense is null)
             return BadRequest($"License {previousId} does not exist.");
@@ -157,7 +190,7 @@ public partial class LicensesController(ApplicationDbContext context) : ODataCon
     private async Task<List<Seat>> CloneSeats(int? previousId, int newId, int seats, DateOnly? validFrom)
     {
         List<Seat> newSeats = new List<Seat>();
-        List<Seat> seatsInExistingLicense = await context.Seats
+        List<Seat> seatsInExistingLicense = await _context.Seats
             .Where(x => x.LicenseId == previousId)
             .ToListAsync();
             

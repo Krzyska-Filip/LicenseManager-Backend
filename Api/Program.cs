@@ -1,3 +1,4 @@
+using Api.Services;
 using Licenses.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,8 @@ using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterDatabase(builder.Configuration);
+builder.Services.AddSingleton<IIdempotencyKeyService, CacheIdempotencyKeyService>();
+builder.Services.AddMemoryCache();
 
 /* ODATA */
 

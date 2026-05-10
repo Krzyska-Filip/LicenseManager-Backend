@@ -15,7 +15,7 @@ public partial class LicensesController : ODataController
     [HttpGet("odata/Licenses/{key}/Seats")]
     public IActionResult GetSeatsFromLicense([FromRoute] int key)
     {
-        var seats = context.Seats.Where(s => s.LicenseId == key);
+        var seats = _context.Seats.Where(s => s.LicenseId == key);
         return Ok(seats);
     }
 
@@ -26,7 +26,7 @@ public partial class LicensesController : ODataController
         [FromRoute] int key,
         [FromRoute] int relatedKey)
     {
-        var seats = context.Seats
+        var seats = _context.Seats
             .Where(s => s.LicenseId == key && s.Id == relatedKey);
 
         return Ok(SingleResult.Create(seats));
@@ -46,8 +46,8 @@ public partial class LicensesController : ODataController
             ValidFrom = request.ValidFrom,
         };
 
-        context.Seats.Add(entity);
-        await context.SaveChangesAsync();
+        _context.Seats.Add(entity);
+        await _context.SaveChangesAsync();
 
         return Created(entity);
     }
@@ -59,14 +59,14 @@ public partial class LicensesController : ODataController
         [FromRoute] int relatedKey,
         [FromBody] Delta<Seat> delta)
     {
-        var entity = await context.Seats
+        var entity = await _context.Seats
             .FirstOrDefaultAsync(s => s.LicenseId == key && s.Id == relatedKey);
 
         if (entity == null)
             return NotFound();
 
         delta.Patch(entity);
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return Updated(entity);
     }
@@ -77,14 +77,14 @@ public partial class LicensesController : ODataController
         [FromRoute] int key,
         [FromRoute] int relatedKey)
     {
-        var entity = await context.Seats
+        var entity = await _context.Seats
             .FirstOrDefaultAsync(s => s.LicenseId == key && s.Id == relatedKey);
 
         if (entity == null)
             return NotFound();
 
-        context.Seats.Remove(entity);
-        await context.SaveChangesAsync();
+        _context.Seats.Remove(entity);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
