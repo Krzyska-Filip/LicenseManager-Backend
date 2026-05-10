@@ -1,4 +1,5 @@
 ﻿using Api.Requests;
+using Database.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;

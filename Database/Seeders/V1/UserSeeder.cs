@@ -1,6 +1,6 @@
-﻿using Licenses.Database;
-using Licenses.Database.Entities;
-using Licenses.Database.Seeders;
+﻿using Database.Entities;
+
+namespace Database.Seeders.V1;
 
 public class UserSeeder : ISeeder
 {

@@ -2,7 +2,8 @@
 using System.Text.Json;
 using Api.Requests;
 using Api.Services;
-using Licenses.Database;
+using Database;
+using Database.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;

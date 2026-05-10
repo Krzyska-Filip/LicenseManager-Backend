@@ -1,4 +1,4 @@
-﻿namespace Licenses.Database.Seeders;
+﻿namespace Database.Seeders;
 
 public interface ISeeder
 {

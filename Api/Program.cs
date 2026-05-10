@@ -1,6 +1,7 @@
 using Api.Services;
-using Licenses.Database;
-using Licenses.Database.Dto;
+using Database;
+using Database.Dto;
+using Database.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;

@@ -1,6 +1,7 @@
-﻿using Licenses.Database.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Database.Entities;
 
 public class Seat : IEntity
 {

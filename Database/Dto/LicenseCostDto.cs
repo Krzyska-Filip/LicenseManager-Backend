@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Licenses.Database.Dto;
+namespace Database.Dto;
 
 public class LicenseCostDto
 {

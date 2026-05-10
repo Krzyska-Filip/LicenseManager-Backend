@@ -1,4 +1,4 @@
-﻿namespace Licenses.Database.Entities;
+﻿namespace Database.Entities;
 
 public interface IEntity
 {

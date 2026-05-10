@@ -1,8 +1,8 @@
-﻿using Licenses.Database.Dto;
-using Licenses.Database.Entities;
+﻿using Database.Dto;
+using Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Licenses.Database;
+namespace Database;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
