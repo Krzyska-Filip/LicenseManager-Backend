@@ -155,6 +155,32 @@ public partial class LicensesController : ODataController
 
         return NoContent();
     }
+    
+    [HttpGet("odata/Licenses({key})/History")]
+    [HttpGet("odata/Licenses/{key}/History")]
+    [EnableQuery]
+    public IActionResult GetHistory([FromRoute] int key)
+    {
+        var sql = 
+              """
+                  WITH RECURSIVE "LicenseChain" AS (
+                      SELECT *, xmin FROM "Licenses"
+                      WHERE "Id" = {0}
+                      
+                      UNION ALL
+                      
+                      SELECT l.*, xmin FROM "Licenses" l
+                      INNER JOIN "LicenseChain" lc ON l."Id" = lc."PreviousId"
+                  )
+                  SELECT * FROM "LicenseChain"
+              """;
+        
+        var items = _context.Licenses
+            .FromSqlRaw(sql, key)
+            .AsNoTracking();
+
+        return Ok(items);
+    }
 
     private async Task<IActionResult> HandleRenewal(int? previousId)
     {
