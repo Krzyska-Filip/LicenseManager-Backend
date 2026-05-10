@@ -34,22 +34,27 @@ public static class ApplicationDbExtension
         using var scope = services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        if (db.Users.Any()) return;
-
-        if (db.Database.IsRelational())
-            db.Database.ExecuteSqlRaw(@"
-                TRUNCATE TABLE ""Seats"",
-                               ""Licenses"",
-                               ""LicenseGroups"",
-                               ""Users""
-                RESTART IDENTITY CASCADE;
-            ");
         
         new UserSeeder().Seed(db);
         new GroupSeeder().Seed(db);
         new LicenseSeeder().Seed(db);
         new SeatSeeder().Seed(db);
         db.SaveChanges();
+    }
+    
+    public static void ClearDatabase(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        if (db.Database.IsRelational())
+            db.Database.ExecuteSqlRaw(@"
+                TRUNCATE TABLE ""Seats"",
+                               ""Licenses"",
+                               ""Groups"",
+                               ""Users""
+                RESTART IDENTITY CASCADE;
+            ");
     }
 }

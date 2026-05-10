@@ -55,6 +55,7 @@ app.Services.MigrateDatabase();
 
 if (app.Environment.IsDevelopment())
 {
+    app.Services.ClearDatabase();
     app.Services.SeedDatabase();
 }
 
