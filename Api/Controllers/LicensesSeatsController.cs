@@ -23,7 +23,7 @@ public partial class LicensesController : ODataController
     [EnableQuery]
     [HttpGet("odata/Licenses({key})/Seats({relatedKey})")]
     [HttpGet("odata/Licenses/{key}/Seats/{relatedKey}")]
-    public IActionResult GetSeatsFromLicense(
+    public IActionResult GetSeatFromLicense(
         [FromRoute] int key,
         [FromRoute] int relatedKey)
     {
