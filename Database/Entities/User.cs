@@ -9,6 +9,9 @@ public class User : IEntity
     public string Username { get; set; }
     public string Email { get; set; }
     public uint Version { get; set; }
+
+    public List<License> Licenses { get; set; } = [];
+    public List<Seat> Seats { get; set; } = [];
 }
 
 public class UserTypeConfiguration : IEntityTypeConfiguration<User>
@@ -26,5 +29,18 @@ public class UserTypeConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("xid")
             .ValueGeneratedOnAddOrUpdate()
             .IsConcurrencyToken();
+
+        builder.HasMany(u => u.Licenses)
+            .WithMany()
+            .UsingEntity<Seat>(
+                j => j.HasOne(s => s.License)
+                      .WithMany(l => l.Seats)
+                      .HasForeignKey(s => s.LicenseId)
+                      .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne(s => s.AssignedTo)
+                      .WithMany(u => u.Seats)
+                      .HasForeignKey(s => s.AssignedToId)
+                      .OnDelete(DeleteBehavior.SetNull)
+            );
     }
 }

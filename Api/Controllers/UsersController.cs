@@ -9,18 +9,25 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Api.Controllers;
 
-public class UsersController(ApplicationDbContext context) : ODataController
+public partial class UsersController : ODataController
 {
+    private readonly ApplicationDbContext _context;
+    
+    public UsersController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     [EnableQuery(PageSize=5)]
     public IActionResult Get()
     {
-        return Ok(context.Users);
+        return Ok(_context.Users);
     }
     
     [EnableQuery]
     public IActionResult Get([FromRoute] int key)
     {
-        var entity = context.Users.Where(x => x.Id == key);
+        var entity = _context.Users.Where(x => x.Id == key);
 
         return Ok(SingleResult.Create(entity));
     }
@@ -33,35 +40,35 @@ public class UsersController(ApplicationDbContext context) : ODataController
             Email = request.Email,
         };
 
-        context.Users.Add(entity);
-        await context.SaveChangesAsync();
+        _context.Users.Add(entity);
+        await _context.SaveChangesAsync();
 
         return Created(entity);
     }
     
     public async Task<IActionResult> Patch([FromRoute] int key, [FromBody] Delta<User> delta)
     {
-        var entity = await context.Users.FindAsync(key);
+        var entity = await _context.Users.FindAsync(key);
 
         if (entity == null)
             return NotFound();
 
         delta.Patch(entity);
 
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return Updated(entity);
     }
     
     public async Task<IActionResult> Delete([FromRoute] int key)
     {
-        var entity = await context.Users.FindAsync(key);
+        var entity = await _context.Users.FindAsync(key);
 
         if (entity == null)
             return NotFound();
 
-        context.Users.Remove(entity);
-        await context.SaveChangesAsync();
+        _context.Users.Remove(entity);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }

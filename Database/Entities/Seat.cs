@@ -26,18 +26,6 @@ public class SeatTypeConfiguration : IEntityTypeConfiguration<Seat>
             .Property(b => b.Id)
             .ValueGeneratedOnAdd();
         
-        builder
-            .HasOne(b => b.License)
-            .WithMany(l => l.Seats)
-            .HasForeignKey(b => new { b.LicenseId })
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder
-            .HasOne(b => b.AssignedTo)
-            .WithMany()
-            .HasForeignKey(b => new { b.AssignedToId })
-            .OnDelete(DeleteBehavior.SetNull);
-
         builder.Property(b => b.AggregatedId)
             .ValueGeneratedOnAdd()
             .HasDefaultValueSql("gen_random_uuid()");

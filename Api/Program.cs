@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Api.Services;
 using Database;
 using Database.Dto;
@@ -29,6 +30,8 @@ licenses.EntityType.Collection.Function("Cost").ReturnsCollection<LicenseCostDto
 licenses.EntityType.Function("History").ReturnsCollection<License>();
 
 builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
     .AddOData(opt => opt
         .AddRouteComponents("odata", modelBuilder.GetEdmModel())
         .Filter()
