@@ -35,12 +35,20 @@ public static class ApplicationDbExtension
         using var scope = services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
+
         new UserSeeder().Seed(db);
         new GroupSeeder().Seed(db);
         new LicenseSeeder().Seed(db);
         new SeatSeeder().Seed(db);
         db.SaveChanges();
+
+        if (db.Database.IsRelational())
+            db.Database.ExecuteSqlRaw(@"
+                SELECT setval(pg_get_serial_sequence('""Users""', 'Id'), (SELECT MAX(""Id"") FROM ""Users""));
+                SELECT setval(pg_get_serial_sequence('""Groups""', 'Id'), (SELECT MAX(""Id"") FROM ""Groups""));
+                SELECT setval(pg_get_serial_sequence('""Licenses""', 'Id'), (SELECT MAX(""Id"") FROM ""Licenses""));
+                SELECT setval(pg_get_serial_sequence('""Seats""', 'Id'), (SELECT MAX(""Id"") FROM ""Seats""));
+            ");
     }
     
     public static void ClearDatabase(this IServiceProvider services)
