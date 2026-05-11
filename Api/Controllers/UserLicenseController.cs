@@ -1,4 +1,6 @@
+using Api.Requests;
 using Database;
+using Database.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -61,6 +63,43 @@ public partial class UsersController : ODataController
         return Created(firstFree);
     }
     
+    [HttpPost("odata/Users/{key}/LicenseAssignments")]
+    [HttpPost("odata/Users({key})/LicenseAssignments")]
+    [EnableQuery]
+    public async Task<IActionResult> LicenseAssignments([FromRoute] int key, [FromBody] AssignMultipleLicensesRequest request)
+    {
+        var user = await _context.Users.FindAsync(key);
+        
+        if (user is null)
+            return NotFound("User not found");
+
+        var licenseIds = request.Ids;
+
+        var licenses = await _context.Licenses
+            .Include(l => l.Seats)
+            .Where(l => licenseIds.Contains(l.Id))
+            .ToListAsync();
+
+        if (licenses.Count != licenseIds.Count)
+            return NotFound("One or more licenses not found");
+
+        var assignedSeats = new List<Seat>();
+
+        foreach (var license in licenses)
+        {
+            var freeSeat = license.Seats.FirstOrDefault(s => s.AssignedToId is null);
+            if (freeSeat is null)
+                return UnprocessableEntity($"License {license.Id} has no free seats");
+
+            freeSeat.AssignedToId = user.Id;
+            assignedSeats.Add(freeSeat);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(assignedSeats.AsQueryable());
+    }
+
     [HttpDelete("odata/Users({key})/Licenses({relatedKey})")]
     [HttpDelete("odata/Users/{key}/Licenses/{relatedKey}")]
     public async Task<IActionResult> DeleteLicenseFromUser(
